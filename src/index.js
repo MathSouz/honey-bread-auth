@@ -24,6 +24,7 @@ const verifyToken = (req, res, next) => {
     req.token = jwt.verify(token, jwtSecret);
     next();
   } catch (err) {
+    console.log(err);
     return res.status(UNAUTHORIZED).json({ message: "Invalid token" });
   }
 };
