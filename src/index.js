@@ -2,14 +2,16 @@ const express = require("express");
 const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
-} = require("./constants/StatusCode");
-const { ROUNDS } = require("./constants/BCrypt");
+  NOT_FOUND,
+} = require("./constants/status_code");
+const { ROUNDS } = require("./constants/bcrypt");
 const app = express();
 
 const { User } = require("./model/user");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { jwtSecret } = require("./constants/environment_variables");
 
 app.use(express.json());
 app.use(function (err, req, res, next) {
@@ -18,6 +20,21 @@ app.use(function (err, req, res, next) {
 
 app.get("/", (req, res) => {
   return res.json(new Date());
+});
+
+app.get("/user", async (req, res) => {
+  const { token } = req.headers;
+
+  if (!token) {
+    return res.status(NOT_FOUND).json({ message: "Token not found" });
+  }
+
+  try {
+    const payload = jwt.verify(token, jwtSecret);
+    return res.json({ userId: payload.userId });
+  } catch (err) {
+    return res.status(BAD_REQUEST).json({ message: "Invalid token" });
+  }
 });
 
 app.post("/register", async (req, res) => {
@@ -39,10 +56,7 @@ app.post("/register", async (req, res) => {
 
   try {
     const newUser = await User.create({ username, email, password });
-    const generatedToken = jwt.sign(
-      { userId: newUser.id },
-      process.env.JWT_SECRET
-    );
+    const generatedToken = jwt.sign({ userId: newUser.id }, jwtSecret);
     return res.json({ token: generatedToken });
   } catch (err) {
     console.log(err);

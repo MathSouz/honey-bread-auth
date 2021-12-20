@@ -1,9 +1,10 @@
 const { Sequelize } = require("sequelize");
-
-const database = process.env.DATABASE;
-const host = process.env.HOST;
-const username = process.env.USERNAME;
-const password = process.env.PASSWORD;
+const {
+  database,
+  host,
+  username,
+  password,
+} = require("../constants/environment_variables");
 
 const sequelize = new Sequelize({
   dialect: "postgres",
