@@ -41,9 +41,11 @@ app.get("/", (req, res) => {
 app.get("/me", verifyToken, async (req, res) => {
   try {
     const payload = req.token;
-    let foundUser = await User.findOne({ where: { id: payload.userId } });
-    foundUser.password = undefined;
-    return res.json({ user: foundUser });
+    let { id, username, email, createdAt, updatedAt } = await User.findOne({
+      where: { id: payload.userId },
+    });
+
+    return res.json({ id, username, email, createdAt, updatedAt });
   } catch (err) {
     return res.status(NOT_FOUND).json({ message: "User not found" });
   }
