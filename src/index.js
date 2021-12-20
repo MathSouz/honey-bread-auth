@@ -9,6 +9,7 @@ app.get("/", (req, res) => {
   return res.json(new Date());
 });
 
-app.listen(4000, () => {
-  console.log("aaa");
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log("at " + PORT);
 });
