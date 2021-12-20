@@ -3,6 +3,7 @@ const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
   NOT_FOUND,
+  UNAUTHORIZED,
 } = require("./constants/status_code");
 const { ROUNDS } = require("./constants/encrypt");
 const app = express();
@@ -18,11 +19,20 @@ app.use(function (err, req, res, next) {
   res.status(INTERNAL_SERVER_ERROR).json({ message: "An error occurred..." });
 });
 
+const verifyToken = (req, res, next) => {
+  try {
+    req.token = jwt.verify(token, jwtSecret);
+    next();
+  } catch (err) {
+    return res.status(UNAUTHORIZED).json({ message: "Invalid token" });
+  }
+};
+
 app.get("/", (req, res) => {
   return res.json(new Date());
 });
 
-app.get("/user", async (req, res) => {
+app.get("/me", verifyToken, async (req, res) => {
   const { token } = req.headers;
 
   if (!token) {
@@ -30,7 +40,24 @@ app.get("/user", async (req, res) => {
   }
 
   try {
-    const payload = jwt.verify(token, jwtSecret);
+    const payload = req.token;
+    const foundUser = await User.findOne({ where: { id: payload.userId } });
+
+    return res.json({ user: foundUser });
+  } catch (err) {
+    return res.status(NOT_FOUND).json({ message: "User not found" });
+  }
+});
+
+app.get("/verify", verifyToken, async (req, res) => {
+  const { token } = req.headers;
+
+  if (!token) {
+    return res.status(NOT_FOUND).json({ message: "Token not found" });
+  }
+
+  try {
+    const payload = req.token;
     return res.json({ userId: payload.userId });
   } catch (err) {
     return res.status(BAD_REQUEST).json({ message: "Invalid token" });
