@@ -1,11 +1,16 @@
 const { Sequelize } = require("sequelize");
 
+const database = process.env.DATABASE;
+const host = process.env.HOST;
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
+
 const sequelize = new Sequelize({
   dialect: "postgres",
-  database: "dav23eumf4cs6p",
-  host: "ec2-3-216-40-16.compute-1.amazonaws.com",
-  username: "lhncsdkahmkdwc",
-  password: "ea2abafe49f20aef37d1e768af6ce97d48f106e903960102e3df9e9f69e57725",
+  database: database,
+  host: host,
+  username: username,
+  password: password,
   dialectOptions: {
     ssl: {
       require: true,
