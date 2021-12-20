@@ -4,7 +4,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
 } = require("./constants/status_code");
-const { ROUNDS } = require("./constants/bcrypt");
+const { ROUNDS } = require("./constants/encrypt");
 const app = express();
 
 const { User } = require("./model/user");
