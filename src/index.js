@@ -37,6 +37,31 @@ app.get("/user", async (req, res) => {
   }
 });
 
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email) {
+    return res.status(BAD_REQUEST).json({ message: "Missing email" });
+  }
+
+  if (!password) {
+    return res.status(BAD_REQUEST).json({ message: "Missing password" });
+  }
+
+  try {
+    const foundUser = await User.findOne({ where: { email } });
+
+    if (bcrypt.compareSync(password, foundUser.password)) {
+      const generatedToken = jwt.sign({ userId: foundUser.id }, jwtSecret);
+      return res.json({ token: generatedToken });
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid credentials" });
+  }
+});
+
 app.post("/register", async (req, res) => {
   let { username, email, password } = req.body;
 
