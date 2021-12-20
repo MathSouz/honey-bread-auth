@@ -42,6 +42,7 @@ app.get("/me", verifyToken, async (req, res) => {
   try {
     const payload = req.token;
     const foundUser = await User.findOne({ where: { id: payload.userId } });
+    delete foundUser.password;
     return res.json({ user: foundUser });
   } catch (err) {
     return res.status(NOT_FOUND).json({ message: "User not found" });
