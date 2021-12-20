@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
   return res.json(new Date());
 });
 
-app.get("/me", verifyToken(), async (req, res) => {
+app.get("/me", verifyToken, async (req, res) => {
   const { token } = req.headers;
 
   if (!token) {
@@ -49,7 +49,7 @@ app.get("/me", verifyToken(), async (req, res) => {
   }
 });
 
-app.get("/verify", verifyToken(), async (req, res) => {
+app.get("/verify", verifyToken, async (req, res) => {
   const { token } = req.headers;
 
   if (!token) {
