@@ -20,11 +20,16 @@ app.use(function (err, req, res, next) {
 });
 
 const verifyToken = (req, res, next) => {
+  const { token } = req.headers;
+
+  if (!token) {
+    return res.status(NOT_FOUND).json({ message: "Token not found" });
+  }
+
   try {
     req.token = jwt.verify(token, jwtSecret);
     next();
   } catch (err) {
-    console.log(err);
     return res.status(UNAUTHORIZED).json({ message: "Invalid token" });
   }
 };
@@ -34,16 +39,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/me", verifyToken, async (req, res) => {
-  const { token } = req.headers;
-
-  if (!token) {
-    return res.status(NOT_FOUND).json({ message: "Token not found" });
-  }
-
   try {
     const payload = req.token;
     const foundUser = await User.findOne({ where: { id: payload.userId } });
-
     return res.json({ user: foundUser });
   } catch (err) {
     return res.status(NOT_FOUND).json({ message: "User not found" });
@@ -51,12 +49,6 @@ app.get("/me", verifyToken, async (req, res) => {
 });
 
 app.get("/verify", verifyToken, async (req, res) => {
-  const { token } = req.headers;
-
-  if (!token) {
-    return res.status(NOT_FOUND).json({ message: "Token not found" });
-  }
-
   try {
     const payload = req.token;
     return res.json({ userId: payload.userId });
